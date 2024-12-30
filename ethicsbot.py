@@ -18,7 +18,7 @@ model_token_lim = 128000
 
 # ========================================================================================================================
 # Set up pop up boxes
-@st.experimental_dialog("Input Username")
+@st.dialog("Input Username")
 def get_username():
     # Extract valid emails at inception
     students = pd.read_csv('./students.csv', header=None)[0]
@@ -33,11 +33,11 @@ def get_username():
             st.session_state['username'] = tempuser.lower()
             st.rerun()
 
-# @st.experimental_dialog("Token Limit")
+# @st.dialog("Token Limit")
 # def token_lim():
 #     st.info('Conversation approaching its token limit.', icon="ℹ️")
 
-@st.experimental_dialog("Download Conversation")
+@st.dialog("Download Conversation")
 def evaluate_and_download():
     # Evaluate
     eval = Evaluator(user_name = st.session_state['username'],

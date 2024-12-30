@@ -82,7 +82,7 @@ if "topic" not in st.session_state:
 # Sidebar
 with st.sidebar:
     # Image
-    st.image('./frontend/mu logo.png', use_column_width=True)
+    st.image('./frontend/mu logo.png', use_container_width=True)
     st.markdown(css.hide_img_fs, unsafe_allow_html=True)
     # API Key
     openaikey = st.text_input("OpenAI API Key", placeholder = "Enter your API Key")

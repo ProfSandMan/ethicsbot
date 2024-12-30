@@ -13,7 +13,7 @@ from backend.evaluation import Evaluator
 # ========================================================================================================================
 # Set up LLM model
 model = 'gpt-4o-mini'
-encoding = tiktoken.encoding_for_model(model)  # Or any other OpenAI model
+# encoding = tiktoken.encoding_for_model(model)  # Or any other OpenAI model
 model_token_lim = 128000
 
 # ========================================================================================================================

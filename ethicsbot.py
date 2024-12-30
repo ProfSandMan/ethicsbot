@@ -4,7 +4,7 @@ import time
 
 import pandas as pd
 import streamlit as st
-import tiktoken
+# import tiktoken
 
 import frontend.css as css
 from backend.llms import OpenAILLM
@@ -33,9 +33,9 @@ def get_username():
             st.session_state['username'] = tempuser.lower()
             st.rerun()
 
-@st.experimental_dialog("Token Limit")
-def token_lim():
-    st.info('Conversation approaching its token limit.', icon="ℹ️")
+# @st.experimental_dialog("Token Limit")
+# def token_lim():
+#     st.info('Conversation approaching its token limit.', icon="ℹ️")
 
 @st.experimental_dialog("Download Conversation")
 def evaluate_and_download():
@@ -125,16 +125,16 @@ if col1.button("Begin Conversation", type='primary'):
 # Begin conversation
 if viable == True or st.session_state['user_launched_convo'] == True:
 
-    # Check token count
-    content = ''
-    for message in st.session_state.messages:
-        if content == '':
-            content += message["role"] + message['content']
-        else:
-            content += '\n' + message["role"] + message['content']
-    num_token = len(encoding.encode(content))
-    if num_token/model_token_lim >= .8:
-        token_lim()
+    # # Check token count
+    # content = ''
+    # for message in st.session_state.messages:
+    #     if content == '':
+    #         content += message["role"] + message['content']
+    #     else:
+    #         content += '\n' + message["role"] + message['content']
+    # num_token = len(encoding.encode(content))
+    # if num_token/model_token_lim >= .8:
+    #     token_lim()
 
     # Generate initial topic
     if st.session_state['user_launched_convo'] == False:

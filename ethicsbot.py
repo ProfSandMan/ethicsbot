@@ -1,6 +1,6 @@
-import time
+from datetime import datetime
 import pickle
-import json
+import time
 
 import pandas as pd
 import streamlit as st
@@ -37,10 +37,6 @@ def get_username():
 def token_lim():
     st.info('Conversation approaching its token limit.', icon="ℹ️")
 
-
-
-
-
 @st.experimental_dialog("Download Conversation")
 def evaluate_and_download():
     # Evaluate
@@ -49,31 +45,13 @@ def evaluate_and_download():
                      topic = st.session_state['topic'])
     with st.spinner('Preparing output...'):
         eval.evaluate(st.session_state['llm'], st.session_state['messages'], st.session_state['start_time'], st.session_state['end_time'])
-       
-
-        #
-        #
-        # todo: return here, figure out how to encrypt the json string OR pickle it
-        #
-        #
-
-
-        package = eval.__dict__
-        package = json.dumps(package)
-
-        # # pickle class
-        # package = pickle.dumps(package)
+        # pickle class
+        package = pickle.dumps(eval)
 
     st.text("The file is now ready for download")
-    if st.download_button('Download file', package):
+    if st.download_button('Download file', package, f'Ethics Convo {datetime.now().strftime('%d/%m/%Y, %H:%M:%S')}.muef'):
         st.balloons()
         st.toast('Hooray! The file has been downloaded.', icon='🎉')
-        st.rerun()
-
-
-
-
-
 
 # ========================================================================================================================
 # Establish app and session_state variables
@@ -196,14 +174,14 @@ if viable == True or st.session_state['user_launched_convo'] == True:
     # Enter user response into conversation
     if user_response := st.chat_input("What's your response?"):
         st.session_state.messages.append({"role": "user", "content": user_response})
-        counter = ("Please provide a strong counter argument against the prior user response and/or add new information to the ethical dilemma "
+        counter = ("If the response is a follow up question, please provide the detail (but not a suggestion as to what to do) that answers their question."
+                   "If it is a true response to the prior output, please provide a strong counter argument against the prior user response and/or add new information to the ethical dilemma "
                    "in an attempt to convince the user to change their mind. Conclude your statement by asking what the user would do in light of your response. "
+                   "Make sure that you are logically consistent across your responses, you don't repeat the same arguments over and over, and the retorts against the student "
+                   "progressively get harder and harder (that is to say, make the scenario more morally ambiguous as things progress to make them really reconsider their position). "
                    "You are witty and concise in your retort to the user.")
         st.session_state.messages.append({"role": "system", 
                                           "content": counter})
-        # # Add to chat log
-        # with st.chat_message("user"):
-        #     st.write(user_response)              
 
         for message in st.session_state.messages:
             if message["role"].lower().strip() != 'system':

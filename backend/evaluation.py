@@ -2,7 +2,6 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-
 class LLMEvaluation(BaseModel):
     grade: int
     logic: str
@@ -27,7 +26,7 @@ class Evaluator():
                        "how much thought went into the student's responses (Did they ever change their mind? Did they justify and defend their positions?, "
                        "Did they ask questions? Did they carry on a resonable length conversation until a sort of steady state was reached? etc.), and "
                        "whether the student appeared to take the conversation seriously (i.e. they didn't respond with non-sensical, irrelevant, or joke responses). "
-                       "A conversation of >= 10 minutes and/or a MEANINGFUL conversation with at least 5 responses is 'A' worthy. "
+                       "A conversation of >= 8 minutes and/or a MEANINGFUL conversation with at least 5 responses is 'A' worthy. "
                        "You are to evaluate all of the above and return an integer grade between 0 and 100, and you must include your logic for why you gave the grade you did.")
         
         mins_spent = round((end_time - start_time) / 60, 2)
@@ -38,9 +37,9 @@ class Evaluator():
                 user_responses += 1
             if message["role"].lower().strip() != 'system':           
                 if convo_str == '':
-                    convo_str = real_role(message["role"].lower()) + ": " + message["content"]
+                    convo_str = real_role(message["role"].lower()) + ":\n" + message["content"]
                 else:
-                    convo_str += '\n\n' + real_role(message["role"].lower()) + ": " + message["content"]
+                    convo_str += '\n\n' + real_role(message["role"].lower()) + ":\n" + message["content"]
 
         prompt = (f"The user spent a total of {mins_spent}n minutes engaging with the AI bot.\n\n"
                   f"The user responded a total of {user_responses} times to the AI agent.\n\n"
@@ -53,5 +52,5 @@ class Evaluator():
         self.user_responses_ = user_responses
         self.grade_ = response.grade
         self.grade_logic_ = response.logic
-        self.conversation_ = conversation
+        self.conversation_ = convo_str
         self.generated_ = datetime.now().strftime('%d/%m/%Y, %H:%M:%S')

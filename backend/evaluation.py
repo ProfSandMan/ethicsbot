@@ -8,7 +8,7 @@ class LLMEvaluation(BaseModel):
 
 def real_role(role):
     if role == 'assistant':
-        return "AI Chatbot"
+        return "EthicsBot"
     elif role == 'user':
         return "Student"
 

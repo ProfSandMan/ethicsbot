@@ -37,6 +37,10 @@ def get_username():
 # def token_lim():
 #     st.info('Conversation approaching its token limit.', icon="ℹ️")
 
+def callback():
+    st.session_state['downloaded'] = True
+    st.balloons()
+
 @st.dialog("Download Conversation")
 def evaluate_and_download():
     # Evaluate
@@ -47,15 +51,17 @@ def evaluate_and_download():
         eval.evaluate(st.session_state['llm'], st.session_state['messages'], st.session_state['start_time'], st.session_state['end_time'])
         # pickle class
         package = pickle.dumps(eval)
+        st.session_state['conversation'] = eval.conversation_
 
-    st.text("The file is now ready for download")
-    if st.download_button('Download file', package, f'Ethics Convo {datetime.now().strftime('%d/%m/%Y, %H:%M:%S')}.muef'):
-        st.balloons()
-        st.toast('Hooray! The file has been downloaded.', icon='🎉')
+    st.download_button('Download D2L File', package, f'Ethics D2L {datetime.now().strftime('%d/%m/%Y, %H:%M:%S')}.muef',
+                        on_click=callback, type='primary')
+    st.download_button('Download Conversation', st.session_state['conversation'], 
+                       f'Ethics Conversation {datetime.now().strftime('%d/%m/%Y, %H:%M:%S')}.txt',
+                       on_click=callback)
 
 # ========================================================================================================================
 # Establish app and session_state variables
-st.set_page_config(page_title='⚖️ Ethics Bot', layout='wide')
+st.set_page_config(page_title='⚖️ EthicsBot', layout='wide')
 
 if 'api_key' not in st.session_state:
     st.session_state['api_key'] = None
@@ -77,6 +83,8 @@ if "occupation" not in st.session_state:
     st.session_state['occupation'] = None
 if "topic" not in st.session_state:
     st.session_state['topic'] = None
+if "downloaded" not in st.session_state:
+    st.session_state['downloaded'] = False
 
 # ========================================================================================================================
 # Sidebar
@@ -91,13 +99,18 @@ with st.sidebar:
     # Footer
     st.markdown(css.footer, unsafe_allow_html=True)
 
-# Check Launch Condition =================================================================================================
+# Check Launch Conditions =================================================================================================
 if st.session_state['username'] is None:
     get_username()
 
+if st.session_state['downloaded'] == True:
+    st.session_state.messages = []
+    st.session_state['user_launched_convo'] = False
+    st.session_state['downloaded'] = False
+
 # ========================================================================================================================
 # Build Header and inputs
-st.header("⚖️ Marquette University Ethics Bot")
+st.header("⚖️ Marquette University EthicsBot")
 occupation = st.text_input("Please input your planned occupation below (optional)", placeholder="example: AI Engineer")
 topic = st.text_input("Please input any special topic that you're interested in (optional)", placeholder="example: use of AI for financial credit approval")
 col1, col2, col3, col4 = st.columns([1,1,1,3])
@@ -106,6 +119,11 @@ col1, col2, col3, col4 = st.columns([1,1,1,3])
 # Export
 if col3.button("Export Conversation", type='primary'):
     st.session_state['end_time'] = time.time()
+    # Retain conversation in window
+    for message in st.session_state.messages:
+        if message["role"].lower().strip() != 'system':
+            with st.chat_message(message["role"]):
+                st.write(message["content"])
     evaluate_and_download()
 
 # Reset
@@ -138,7 +156,7 @@ if viable == True or st.session_state['user_launched_convo'] == True:
 
     # Generate initial topic
     if st.session_state['user_launched_convo'] == False:
-        with st.spinner('Ethics bot is thinking...'):
+        with st.spinner('EthicsBot is thinking...'):
             if occupation is not None and occupation != '':
                 system_role = (f"You are now a university professor of ethics teaching students who will end up working as {occupation}s. "
                                f"Your goal is to create an INCREDIBLY tricky ethical dilemma that they may face in thier future career track. ")
@@ -147,12 +165,13 @@ if viable == True or st.session_state['user_launched_convo'] == True:
                 system_role = f"You are now a university professor of ethics. Your goal is to create an INCREDIBLY tricky ethical dilemma. "
             system_role += (f"The situation you generate should be extremely morally ambiguous with no clear or correct decision, " 
                             f"forcing the student to really contemplate what to do. Avoid situations with binary options. "
-                            f"Try to come up with novel scenarios that aren't just 'you are a doctor that must pick between patients'."
+                            f"Try to come up with atypical and novel scenarios that aren't just 'you are a doctor that must pick between patients' or "
+                            f"'you are developing a new cure for a disease, but there are downsides'. "
                             f"After you present the dilemma, ask the student how they would respond in the situation and why. "
                             f"After the student responds, you will provide new information and/or counterpoints to their logic in an attempt to get them to change their mind. "
                             f"For the rest of the conversation, your goal is to get the student to change their mind. If they do change their mind, " 
                             f"ask them to define what specifically caused their change of mind." 
-                            f"You are witty and concise in your responses to the user.")
+                            f"You are witty and concise in your responses to the user. Simply provide the initial scenario with no additional text.")
                 # Check for topic
             if topic is not None and topic != '':
                 system_role += f"\n\nThe user has a particular interest in {topic}. Please make the initial ethical dilemma revolve around this topic."
@@ -189,7 +208,7 @@ if viable == True or st.session_state['user_launched_convo'] == True:
                     st.write(message["content"])
 
         # Generate agent response
-        with st.spinner('Ethics bot is thinking...'):
+        with st.spinner('EthicsBot is thinking...'):
             agent_response = st.session_state['llm'].query(prompt = st.session_state.messages, system_role = st.session_state['system_role'])
             st.session_state.messages.append({"role": "assistant", "content": agent_response}) 
 

@@ -6,6 +6,7 @@ import pandas as pd
 import sys
 from pydantic import BaseModel
 from ethicsbot.backend.llms import OpenAILLM
+from ethicsbot.backend.evaluation import deobfuscate_text, obfuscate_text
 from dotenv import load_dotenv
 from pathlib import Path
 import pytz
@@ -43,7 +44,6 @@ def convert_central_to_utc(dt: datetime) -> datetime:
 # * Define assignment variables
 folder_path = r'C:\Users\hunte\Downloads\test'
 due_date = pd.to_datetime('2025-01-30 23:59:59', format='%Y-%m-%d %H:%M:%S')
-# ! students can see logic if converting .muef to docx or pdf... need someway to hide the info... maybe have class store all as bytes instead of direct object
 # *============================================================================================================
 
 export_path = r"C:\Users\hunte\OneDrive\Documents\Marquette\AIM 4470 AI Ethics\Spring 25\EthicsBot Assignments"
@@ -86,7 +86,7 @@ You're an ethics professor giving feedback on a recently submitted assignment. T
 
 Objective:
 Use the provided grading notes to deliver personalized, second-person feedback to students. Keep the tone casual and conversational—like a natural human, not a robotic AI.
-Explain to the students through the use of their own quotes why the earned their grade, especially for where they got points off.
+Explain to the students through the use of THEIR OWN QUOTES why the earned their grade, especially for where they got points off.
 
 Guidelines:
 - Avoid referencing:
@@ -99,7 +99,7 @@ Guidelines:
   - Highlight positives where applicable; if none, return None.
   - Mention areas where points were lost with clear explanations; if none, return None.
   - Provide suggestions for improvement; if none, return None.
-  - Most importantly, pull specific quotes (if they exist) to help point out to the student why they earned the grades they did.
+  - MOST IMPORTANTLY, pull specific quotes (if they exist) to help point out to the student why they earned the grades they did.
 
 - Tone:
   - Be concise, direct, and supportive.
@@ -146,17 +146,17 @@ for student in list(students.keys()):
                               format='%d/%m/%Y, %H:%M:%S') > pd.to_datetime(convert_central_to_utc(due_date), 
                                                                             format='%d/%m/%Y, %H:%M:%S'):
                 students[student]['grade_'][i] = 0
-                students[student]['grade_logic_'][i] = "You turned this file in late. There is a zero-tolerance policy for late work.".encode('utf-8')
+                students[student]['grade_logic_'][i] = obfuscate_text("You turned this file in late. There is a zero-tolerance policy for late work.")
             
         # Partial assignment
         if assignments < 3:
             delta = 3 - assignments
             for i in range(0, delta):
                 students[student]['grade_'].append(0)
-                students[student]['grade_logic_'].append("You didn't turn in this assignment.".encode('utf-8'))      
+                students[student]['grade_logic_'].append(obfuscate_text("You didn't turn in this assignment."))      
 
         # Generate final summary
-        students[student]['grade_logic_'] = [logic.decode('utf-8') for logic in students[student]['grade_logic_']]
+        students[student]['grade_logic_'] = [deobfuscate_text(logic) for logic in students[student]['grade_logic_']]
         context = {'grades':students[student]['grade_'],
                    'grade_logic':students[student]['grade_logic_']}
         context = json.dumps(context)

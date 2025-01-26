@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import re
 from pydantic import BaseModel
+import base64
 
 MIN_RESPONSES = 6
 MIN_MINUNTES = 8
@@ -36,7 +37,7 @@ Lower grades reflect lack of engagement, shallow responses, or insufficient effo
 Response Format:
 - Provide an integer grade (0-100).
 - Justify the grade with specific observations based on the above criteria.
-  - Include specific quotes from the student that demonstrate your application of the criteria."""
+  - INCLUDE SPECIFIC QUOTES from the student that demonstrate your application of the criteria."""
 
 class LLMEvaluation(BaseModel):
     grade: int
@@ -57,6 +58,16 @@ def word_count(text: str) -> int:
 def sentence_count(text: str) -> int:
     sentence_count = len(re.findall(r'[.!?;:]+', text))
     return sentence_count
+
+def obfuscate_text(text: str) -> str:
+    # Convert string to bytes, then encode to Base64
+    encoded_bytes = base64.b64encode(text.encode('utf-8'))
+    return encoded_bytes.decode('utf-8')
+
+def deobfuscate_text(obfuscated_text: str) -> str:
+    # Decode Base64 back to bytes, then convert to string
+    decoded_bytes = base64.b64decode(obfuscated_text.encode('utf-8'))
+    return decoded_bytes.decode('utf-8')
 
 class Evaluator():
     def __init__(self, user_name, occupation = None, topic = None):
@@ -95,4 +106,4 @@ class Evaluator():
         self.wc_ = word_ct # word count
         self.sc_ = sentence_ct # sentence count
         self.g_ = response.grade # grade
-        self.gl_ = response.logic.encode('utf-8') # grade_logic, encoded to prevent .pdf/.docx conversion trick
+        self.gl_ = obfuscate_text(response.logic) # grade_logic, encoded to prevent .pdf/.docx conversion trick

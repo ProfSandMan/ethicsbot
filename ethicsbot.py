@@ -9,6 +9,8 @@ import frontend.css as css
 from backend.llms import OpenAILLM
 from backend.evaluation import Evaluator
 
+version = '1.0.1'
+
 # ========================================================================================================================
 # Set up LLM model
 model = 'gpt-4o-mini'
@@ -55,6 +57,9 @@ If the user provides a response to the dilemma:
 - Present a strong counterargument that challenges their position OR
 - Introduce a SINGULAR new element to further complicate the ethical scenario if their position is very strong and no good counterargument exists.
 - Push the user to reconsider their stance with progressively tougher retorts.
+
+If the user response with something totally unrelated:
+- Tell the user to take the conversation seriously or you'll leave the conversation
 
 Response Style:
 - Be logically consistent throughout the conversation.
@@ -148,6 +153,7 @@ with st.sidebar:
     openaikey = st.text_input("OpenAI API Key", placeholder = "Enter your API Key")
     # Note:
     st.write("Oh hey, just so you know, when you close the app, it will retain no memory of your API key or your documents.")
+    st.write(f"Version: {version}")    
     # Footer
     st.markdown(css.footer, unsafe_allow_html=True)
 

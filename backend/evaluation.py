@@ -4,9 +4,10 @@ from pydantic import BaseModel
 
 MIN_RESPONSES = 6
 MIN_MINUNTES = 8
+ASSUMED_GRADE = 'sophomore'
 
 SYSTEM_ROLE = f"""Objective:
-Evaluate a student's engagement with an AI ethics bot based on their effort and depth of interaction. Assign an integer grade (0-100) with a clear explanation of the grading rationale.
+Evaluate a university {ASSUMED_GRADE}'s engagement with an AI ethics bot based on their effort and depth of interaction. Assign an integer grade (0-100) with a clear explanation of the grading rationale.
 
 Grading Criteria:
 
@@ -21,19 +22,20 @@ Depth of Thought:
   - Asked meaningful questions.
   - Sustained a reasonable conversation length until a steady state was reached.
   - A meaningful conversation includes at least {MIN_RESPONSES} substantial responses.
+- Recall that the student is only a {ASSUMED_GRADE}, so judge the depth of thought accordingly
 
 Seriousness of Engagement:
 - Determine if the student remained on-topic and engaged earnestly.
-- Responses should not include irrelevant, nonsensical, or joking remarks.
+- Responses should not include irrelevant, nonsensical, or joking remarks. 
 
 Grading Scale:
 
 An 'A' (90-100) is awarded for a meaningful conversation (≥ {MIN_MINUNTES} minutes or {MIN_RESPONSES} thoughtful responses).
 Lower grades reflect lack of engagement, shallow responses, or insufficient effort.
-Response Format:
 
-Provide an integer grade (0-100).
-Justify the grade with specific observations based on the above criteria."""
+Response Format:
+- Provide an integer grade (0-100).
+- Justify the grade with specific observations (pull direct quotes from the conversation) based on the above criteria."""
 
 class LLMEvaluation(BaseModel):
     grade: int
@@ -91,5 +93,5 @@ class Evaluator():
         self.ur_ = user_responses # user response count
         self.wc_ = word_ct # word count
         self.sc_ = sentence_ct # sentence count
-        self.g_ = response # grade
+        self.g_ = response.grade # grade
         self.gl_ = response.logic.encode('utf-8') # grade_logic, encoded to prevent .pdf/.docx conversion trick

@@ -37,16 +37,17 @@ def append_text(oldtext, newtext):
 def convert_central_to_utc(dt: datetime) -> datetime:
     central = pytz.timezone('US/Central')
     utc = pytz.utc
-    return central.localize(dt).astimezone(utc)
+    return central.localize(dt).astimezone(utc).strftime('%d/%m/%Y, %H:%M:%S')
 
 # *============================================================================================================
 # * Define assignment variables
-folder_path = r'C:\Users\hunte\Downloads\EthicsBot 3 Download Jan 25, 2025 522 PM'
-due_date = pd.to_datetime('2026-01-01 23:59:59', format='%Y-%m-%d %H:%M:%S')
+folder_path = r'C:\Users\hunte\Downloads\test'
+due_date = pd.to_datetime('2025-01-30 23:59:59', format='%Y-%m-%d %H:%M:%S')
 # ! students can see logic if converting .muef to docx or pdf... need someway to hide the info... maybe have class store all as bytes instead of direct object
 # *============================================================================================================
 
 export_path = r"C:\Users\hunte\OneDrive\Documents\Marquette\AIM 4470 AI Ethics\Spring 25\EthicsBot Assignments"
+export_path = r'C:\Users\hunte\Downloads\test'
 
 # $ Define additional variables
 students = {}
@@ -117,8 +118,14 @@ for file_name in os.listdir(folder_path):
             # Add all content to review dictionary
             data = data.__dict__
             for k in list(data.keys()):
-                if k in list(students[student].keys()):
+                if unmask.get(k) in list(students[student].keys()):
                     students[student][unmask.get(k)].append(data[k])
+
+
+
+students['hunter.sandidge@marquette.edu']['grade_'] = [55]
+
+
 
 # $ Final Evaluation
 max_grade = 0
@@ -136,19 +143,21 @@ for student in list(students.keys()):
         # Late penalty for turned in assignments
         print("Grading: " + student)
         for i, convo in enumerate(result['conversation_']):
-            if pd.to_datetime(result['generated_'][i], format='%d/%m/%Y, %H:%M:%S') > convert_central_to_utc(due_date):
+            if pd.to_datetime(result['generated_'][i], 
+                              format='%d/%m/%Y, %H:%M:%S') > pd.to_datetime(convert_central_to_utc(due_date), 
+                                                                            format='%d/%m/%Y, %H:%M:%S'):
                 students[student]['grade_'][i] = 0
-                students[student]['grade_logic_'][i] = "You turned this file in late. There is a zero-tolerance policy for late work."
+                students[student]['grade_logic_'][i] = "You turned this file in late. There is a zero-tolerance policy for late work.".encode('utf-8')
             
         # Partial assignment
         if assignments < 3:
             delta = 3 - assignments
             for i in range(0, delta):
                 students[student]['grade_'].append(0)
-                students[student]['grade_logic_'].append("You didn't turn in this assignment.")      
+                students[student]['grade_logic_'].append("You didn't turn in this assignment.".encode('utf-8'))      
 
         # Generate final summary
-        decoded_grade = [strgrade.decode('utf-8') for strgrade in ]
+        students[student]['grade_logic_'] = [logic.decode('utf-8') for logic in students[student]['grade_logic_']]
         context = {'grades':students[student]['grade_'],
                    'grade_logic':students[student]['grade_logic_']}
         context = json.dumps(context)
@@ -168,7 +177,7 @@ s = []
 g = []
 l = []
 m = []
-t = []
+# t = []
 wc = []
 sc = []
 mins = []
@@ -188,14 +197,15 @@ for student in list(students.keys()):
     g.append(grade)
     l.append(students[student]['final_logic'])
     m.append(json.dumps(students[student]))
-    t.append(students[student]['generated_'])
+    # t.append(students[student]['generated_'])
     wc.append(students[student]['word_count_'])
     sc.append(students[student]['sentence_count_'])
     mins.append(students[student]['minutes_spent_'])
     grades.append(students[student]['grade_'])
     resps.append(students[student]['user_responses_'])
 
-data = pd.DataFrame({'student':s, 'grade':g, 'ind_grades':grades, 'logic':l, 'time':t,
+data = pd.DataFrame({'student':s, 'grade':g, 'ind_grades':grades, 'logic':l, 
+                    #  'time':t,
                      'word count':wc, 'sentence count':sc, 'responses': resps,
                      'meta':m})
 

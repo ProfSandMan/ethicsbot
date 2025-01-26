@@ -86,16 +86,21 @@ You're an ethics professor giving feedback on a recently submitted assignment. T
 
 Objective:
 Use the provided grading notes to deliver personalized, second-person feedback to students. Keep the tone casual and conversational—like a natural human, not a robotic AI.
+Explain to the students through the use of their own quotes why the earned their grade, especially for where they got points off.
 
 Guidelines:
 - Avoid referencing:
   - Specific grade values.
   - Terms like “final defense” or “final thought” (treat it as an ongoing conversation rather than something requiring a formal conclusion).
   - The pronouns “I” or “we.”
+  - The time requirement.
+
 - Feedback structure:
   - Highlight positives where applicable; if none, return None.
   - Mention areas where points were lost with clear explanations; if none, return None.
   - Provide suggestions for improvement; if none, return None.
+  - Most importantly, pull specific quotes (if they exist) to help point out to the student why they earned the grades they did.
+
 - Tone:
   - Be concise, direct, and supportive.
   - Keep it short and natural."""
@@ -120,12 +125,6 @@ for file_name in os.listdir(folder_path):
             for k in list(data.keys()):
                 if unmask.get(k) in list(students[student].keys()):
                     students[student][unmask.get(k)].append(data[k])
-
-
-
-students['hunter.sandidge@marquette.edu']['grade_'] = [55]
-
-
 
 # $ Final Evaluation
 max_grade = 0

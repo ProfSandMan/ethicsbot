@@ -35,7 +35,8 @@ Lower grades reflect lack of engagement, shallow responses, or insufficient effo
 
 Response Format:
 - Provide an integer grade (0-100).
-- Justify the grade with specific observations (pull direct quotes from the conversation) based on the above criteria."""
+- Justify the grade with specific observations based on the above criteria.
+  - Include specific quotes from the student that demonstrate your application of the criteria."""
 
 class LLMEvaluation(BaseModel):
     grade: int

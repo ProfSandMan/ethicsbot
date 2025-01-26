@@ -56,6 +56,3 @@ typing-extensions==4.12.2 ; python_full_version == "3.13.0"
 tzdata==2024.2 ; python_full_version == "3.13.0"
 urllib3==2.3.0 ; python_full_version == "3.13.0"
 watchdog==6.0.0 ; platform_system != "Darwin" and python_full_version == "3.13.0"
-
---force-reinstall
-openai

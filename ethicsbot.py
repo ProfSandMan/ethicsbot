@@ -1,18 +1,3 @@
-import subprocess
-import sys
-import streamlit as st
-
-try:
-    import openai
-except ModuleNotFoundError:
-    st.write("Installing missing dependencies...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "openai"])
-    st.write("OpenAI installed successfully.")
-    import openai
-
-
-    
-
 from datetime import datetime
 import pickle
 import time

@@ -4,7 +4,6 @@ import time
 
 import pandas as pd
 import streamlit as st
-# import tiktoken
 
 import frontend.css as css
 from backend.llms import OpenAILLM
@@ -13,8 +12,60 @@ from backend.evaluation import Evaluator
 # ========================================================================================================================
 # Set up LLM model
 model = 'gpt-4o-mini'
-# encoding = tiktoken.encoding_for_model(model)  # Or any other OpenAI model
-model_token_lim = 128000
+
+# Prompts
+INSTR = """Objective:
+Create morally ambiguous scenarios with no clear right or wrong choice, compelling students to deeply analyze their decisions.
+
+Guidelines:
+
+- Scenario Characteristics:
+  - Ensure dilemmas are highly complex with no binary choices.
+  - Avoid overused scenarios like "choosing between patients as a doctor" or "developing a controversial cure."
+  - Focus on unique, unconventional, and thought-provoking situations.
+
+  - Interaction Flow:
+  - Present the dilemma concisely without any additional context or explanation.
+  - Prompt the student to explain their decision and reasoning.
+  - Introduce new information or counterarguments aimed at challenging their stance.
+  - Continue the discussion with the goal of encouraging the student to reconsider their position.
+  - If they change their mind, prompt them to identify what influenced their shift in thinking.
+
+Tone:
+
+  - Keep responses witty, concise, and engaging.
+  - Avoid unnecessary elaboration—stay focused on the scenario and dialogue.
+
+Instruction:
+Simply present the dilemma without prefacing or adding extra context."""
+
+PERSONALITY = """You are a sassy, witty, and sarcastic rhetorically combative master of argument. You are in a debate with a university student regarding an ethical dilemma."""
+
+RETORT = """Given the provided context, your objective is:
+Engage the user in a progressively challenging moral dilemma, responding dynamically based on their input to deepen the ambiguity and complexity of the scenario.
+
+Guidelines for Responses:
+
+If the user asks a follow-up question:
+
+Provide additional context or details that answer their question.
+Avoid offering suggestions or guidance—focus on increasing moral ambiguity.
+If the user provides a response to the dilemma:
+
+Present a strong counterargument that challenges their position.
+Introduce new elements to further complicate the ethical scenario.
+Push the user to reconsider their stance with progressively tougher retorts.
+Response Style:
+
+Be logically consistent throughout the conversation.
+Avoid repeating the same points—each response should escalate the dilemma.
+Responses should become increasingly difficult to defend against, forcing deeper contemplation.
+End each response by asking the user what they would do next based on the new information.
+Tone:
+
+Sassy, witty, and sarcastic while remaining concise and sharp.
+Keep it engaging and thought-provoking without losing the intellectual challenge.
+"""
 
 # ========================================================================================================================
 # Set up pop up boxes
@@ -32,10 +83,6 @@ def get_username():
         else:
             st.session_state['username'] = tempuser.lower()
             st.rerun()
-
-# @st.dialog("Token Limit")
-# def token_lim():
-#     st.info('Conversation approaching its token limit.', icon="ℹ️")
 
 def callback():
     st.session_state['downloaded'] = True
@@ -143,17 +190,6 @@ if col1.button("Begin Conversation", type='primary'):
 # Begin conversation
 if viable == True or st.session_state['user_launched_convo'] == True:
 
-    # # Check token count
-    # content = ''
-    # for message in st.session_state.messages:
-    #     if content == '':
-    #         content += message["role"] + message['content']
-    #     else:
-    #         content += '\n' + message["role"] + message['content']
-    # num_token = len(encoding.encode(content))
-    # if num_token/model_token_lim >= .8:
-    #     token_lim()
-
     # Generate initial topic
     if st.session_state['user_launched_convo'] == False:
         with st.spinner('EthicsBot is thinking...'):
@@ -163,20 +199,14 @@ if viable == True or st.session_state['user_launched_convo'] == True:
                 st.session_state['occupation'] = occupation
             else:
                 system_role = f"You are now a university professor of ethics. Your goal is to create an INCREDIBLY tricky ethical dilemma. "
-            system_role += (f"The situation you generate should be extremely morally ambiguous with no clear or correct decision, " 
-                            f"forcing the student to really contemplate what to do. Avoid situations with binary options. "
-                            f"Try to come up with atypical and novel scenarios that aren't just 'you are a doctor that must pick between patients' or "
-                            f"'you are developing a new cure for a disease, but there are downsides'. "
-                            f"After you present the dilemma, ask the student how they would respond in the situation and why. "
-                            f"After the student responds, you will provide new information and/or counterpoints to their logic in an attempt to get them to change their mind. "
-                            f"For the rest of the conversation, your goal is to get the student to change their mind. If they do change their mind, " 
-                            f"ask them to define what specifically caused their change of mind." 
-                            f"You are witty and concise in your responses to the user. Simply provide the initial scenario with no additional text.")
+            system_role += '\n' + INSTR
+
                 # Check for topic
             if topic is not None and topic != '':
                 system_role += f"\n\nThe user has a particular interest in {topic}. Please make the initial ethical dilemma revolve around this topic."
                 st.session_state['topic'] = topic
             st.session_state['system_role'] = system_role
+            
             # Initialize and hit for base query
             llm = OpenAILLM(openaikey, model = model)
             st.session_state['llm'] = llm
@@ -193,14 +223,7 @@ if viable == True or st.session_state['user_launched_convo'] == True:
     # Enter user response into conversation
     if user_response := st.chat_input("What's your response?"):
         st.session_state.messages.append({"role": "user", "content": user_response})
-        counter = ("If the response is a follow up question, please provide the detail (but not a suggestion as to what to do) that answers their question."
-                   "If it is a true response to the prior output, please provide a strong counter argument against the prior user response and/or add new information to the ethical dilemma "
-                   "in an attempt to convince the user to change their mind. Conclude your statement by asking what the user would do in light of your response. "
-                   "Make sure that you are logically consistent across your responses, you don't repeat the same arguments over and over, and the retorts against the student "
-                   "progressively get harder and harder (that is to say, make the scenario more morally ambiguous as things progress to make them really reconsider their position). "
-                   "You are witty and concise in your retort to the user.")
-        st.session_state.messages.append({"role": "system", 
-                                          "content": counter})
+        st.session_state.messages.append({"role": "system", "content": RETORT})
 
         for message in st.session_state.messages:
             if message["role"].lower().strip() != 'system':
@@ -209,7 +232,7 @@ if viable == True or st.session_state['user_launched_convo'] == True:
 
         # Generate agent response
         with st.spinner('EthicsBot is thinking...'):
-            agent_response = st.session_state['llm'].query(prompt = st.session_state.messages, system_role = st.session_state['system_role'])
+            agent_response = st.session_state['llm'].query(prompt = st.session_state.messages, system_role = PERSONALITY)
             st.session_state.messages.append({"role": "assistant", "content": agent_response}) 
 
         # Add to chat log

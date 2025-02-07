@@ -42,12 +42,11 @@ def convert_central_to_utc(dt: datetime) -> datetime:
 
 # *============================================================================================================
 # * Define assignment variables
-folder_path = r'C:\Users\hunte\Downloads\test'
-due_date = pd.to_datetime('2025-01-30 23:59:59', format='%Y-%m-%d %H:%M:%S')
+folder_path = r'C:\Users\hunte\Downloads\EthicsBot 6 Download Feb 6, 2025 701 PM'
+due_date = pd.to_datetime('2025-02-05 23:59:59', format='%Y-%m-%d %H:%M:%S')
 # *============================================================================================================
 
 export_path = r"C:\Users\hunte\OneDrive\Documents\Marquette\AIM 4470 AI Ethics\Spring 25\EthicsBot Assignments"
-export_path = r'C:\Users\hunte\Downloads\test'
 
 # $ Define additional variables
 students = {}
@@ -93,7 +92,7 @@ Guidelines:
   - Specific grade values.
   - Terms like “final defense” or “final thought” (treat it as an ongoing conversation rather than something requiring a formal conclusion).
   - The pronouns “I” or “we.”
-  - The time requirement.
+  - MOST IMPORTANTLY, don't talk about the time requirement.
 
 - Feedback structure:
   - Highlight positives where applicable; if none, return None.

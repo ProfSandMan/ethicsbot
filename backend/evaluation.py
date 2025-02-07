@@ -6,6 +6,7 @@ import base64
 MIN_RESPONSES = 6
 MIN_MINUNTES = 8
 ASSUMED_GRADE = 'sophomore'
+AVERAGE_WORDS = 225
 
 SYSTEM_ROLE = f"""Objective:
 Evaluate a university {ASSUMED_GRADE}'s engagement with an AI ethics bot based on their effort and depth of interaction. Assign an integer grade (0-100) with a clear explanation of the grading rationale.
@@ -23,6 +24,7 @@ Depth of Thought:
   - Asked meaningful questions.
   - Sustained a reasonable conversation length until a steady state was reached.
   - A meaningful conversation includes at least {MIN_RESPONSES} substantial responses.
+  - A meaningful conversation has roughly {AVERAGE_WORDS} words.
 - Recall that the student is only a {ASSUMED_GRADE}, so judge the depth of thought accordingly
 
 Seriousness of Engagement:
@@ -31,7 +33,8 @@ Seriousness of Engagement:
 
 Grading Scale:
 
-An 'A' (90-100) is awarded for a meaningful conversation (≥ {MIN_MINUNTES} minutes or {MIN_RESPONSES} thoughtful responses).
+An 'A' (90-100) is awarded for a meaningful conversation: 
+    - "Meaningful" is some combination of ≥ {MIN_MINUNTES} minutes, {MIN_RESPONSES} thoughtful responses, and a word count of ≥ {AVERAGE_WORDS} words.
 Lower grades reflect lack of engagement, shallow responses, or insufficient effort.
 
 Response Format:
@@ -92,8 +95,9 @@ class Evaluator():
                 else:
                     convo_str += '\n\n' + real_role(message["role"].lower()) + ":\n" + message["content"]
 
-        prompt = (f"The user spent a total of {mins_spent}n minutes engaging with the AI bot.\n\n"
+        prompt = (f"The user spent a total of {mins_spent} minutes engaging with the AI bot.\n\n"
                   f"The user responded a total of {user_responses} times to the AI agent.\n\n"
+                  f"The user's total word count was {word_ct} words.\n\n"
                   f"The conversation is below:\n\n{convo_str}")
 
         response = llm.query(prompt = prompt, system_role = SYSTEM_ROLE, response_format = LLMEvaluation)

@@ -8,33 +8,62 @@ MIN_MINUNTES = 8
 ASSUMED_GRADE = 'sophomore'
 AVERAGE_WORDS = 225
 
+# SYSTEM_ROLE = f"""Objective:
+# Evaluate a university {ASSUMED_GRADE}'s engagement with an AI ethics bot based on their effort and depth of interaction. Assign an integer grade (0-100) with a clear explanation of the grading rationale.
+
+# Grading Criteria:
+
+# Time Spent:
+# - Consider the duration of interaction as a proxy for reflection.
+# - Conversations lasting ≥ {MIN_MINUNTES} minutes are considered high-effort.
+
+# Depth of Thought:
+# - Evaluate whether the student:
+#   - Changed their mind at any point.
+#   - Justified and defended their positions.
+#   - Asked meaningful questions.
+#   - Sustained a reasonable conversation length until a steady state was reached.
+#   - A meaningful conversation includes at least {MIN_RESPONSES} substantial responses.
+#   - A meaningful conversation has roughly {AVERAGE_WORDS} words.
+# - Recall that the student is only a {ASSUMED_GRADE}, so judge the depth of thought accordingly
+
+# Seriousness of Engagement:
+# - Determine if the student remained on-topic and engaged earnestly.
+# - Responses should not include irrelevant, nonsensical, or joking remarks. 
+
+# Grading Scale:
+
+# An 'A' (90-100) is awarded for a meaningful conversation: 
+#     - "Meaningful" is some combination of ≥ {MIN_MINUNTES} minutes, {MIN_RESPONSES} thoughtful responses, and a word count of ≥ {AVERAGE_WORDS} words.
+# Lower grades reflect lack of engagement, shallow responses, or insufficient effort.
+
+# Response Format:
+# - Provide an integer grade (0-100).
+# - Justify the grade with specific observations based on the above criteria.
+#   - INCLUDE SPECIFIC QUOTES from the student that demonstrate your application of the criteria."""
+
 SYSTEM_ROLE = f"""Objective:
 Evaluate a university {ASSUMED_GRADE}'s engagement with an AI ethics bot based on their effort and depth of interaction. Assign an integer grade (0-100) with a clear explanation of the grading rationale.
 
 Grading Criteria:
 
-Time Spent:
-- Consider the duration of interaction as a proxy for reflection.
-- Conversations lasting ≥ {MIN_MINUNTES} minutes are considered high-effort.
-
-Depth of Thought:
+Provide an integer (0-100) for Depth of Thought:
 - Evaluate whether the student:
   - Changed their mind at any point.
   - Justified and defended their positions.
   - Asked meaningful questions.
   - Sustained a reasonable conversation length until a steady state was reached.
-  - A meaningful conversation includes at least {MIN_RESPONSES} substantial responses.
   - A meaningful conversation has roughly {AVERAGE_WORDS} words.
 - Recall that the student is only a {ASSUMED_GRADE}, so judge the depth of thought accordingly
 
-Seriousness of Engagement:
+Provide an integer (0-100) for Seriousness of Engagement:
 - Determine if the student remained on-topic and engaged earnestly.
 - Responses should not include irrelevant, nonsensical, or joking remarks. 
 
 Grading Scale:
 
 An 'A' (90-100) is awarded for a meaningful conversation: 
-    - "Meaningful" is some combination of ≥ {MIN_MINUNTES} minutes, {MIN_RESPONSES} thoughtful responses, and a word count of ≥ {AVERAGE_WORDS} words.
+    - "Meaningful" is some combination of depth of thought, seriousness, and a word count of ≥ {AVERAGE_WORDS} words.
 Lower grades reflect lack of engagement, shallow responses, or insufficient effort.
 
 Response Format:
@@ -42,9 +71,12 @@ Response Format:
 - Justify the grade with specific observations based on the above criteria.
   - INCLUDE SPECIFIC QUOTES from the student that demonstrate your application of the criteria."""
 
+
 class LLMEvaluation(BaseModel):
     grade: int
     logic: str
+    depth: int
+    seriousness: int
 
 def real_role(role):
     if role == 'assistant':
@@ -111,3 +143,5 @@ class Evaluator():
         self.sc_ = sentence_ct # sentence count
         self.g_ = response.grade # grade
         self.gl_ = obfuscate_text(response.logic) # grade_logic, encoded to prevent .pdf/.docx conversion trick
+        self.dep_ = response.depth # depth of convo
+        self.ser_ = response.seriousness # seriousness of convo

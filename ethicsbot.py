@@ -9,7 +9,7 @@ import frontend.css as css
 from backend.llms import OpenAILLM
 from backend.evaluation import Evaluator
 
-version = '1.0.1'
+version = '1.0.2'
 
 # ========================================================================================================================
 # Set up LLM model
@@ -210,7 +210,7 @@ if viable == True or st.session_state['user_launched_convo'] == True:
                                f"Your goal is to create an INCREDIBLY tricky ethical dilemma that they may face in thier future career track. ")
                 st.session_state['occupation'] = occupation
             else:
-                system_role = f"You are now a university professor of ethics. Your goal is to create an INCREDIBLY tricky ethical dilemma. "
+                system_role = f"You are now a university professor of ethics. Your goal is to create an INCREDIBLY tricky ethical dilemma. You are to design an ethical quandary for any career related to corporate finance, high finance, accounting, audit, tax, or being a student."
             system_role += '\n' + INSTR
 
                 # Check for topic

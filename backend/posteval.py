@@ -42,8 +42,8 @@ def convert_central_to_utc(dt: datetime) -> datetime:
 
 # *============================================================================================================
 # * Define assignment variables
-folder_path = r'C:\Users\hunte\Downloads\EthicsBot 6 Download Feb 6, 2025 701 PM'
-due_date = pd.to_datetime('2025-02-05 23:59:59', format='%Y-%m-%d %H:%M:%S')
+folder_path = r'C:\Users\hunte\Downloads\testtt'
+due_date = pd.to_datetime('2025-03-05 23:59:59', format='%Y-%m-%d %H:%M:%S')
 # *============================================================================================================
 
 export_path = r"C:\Users\hunte\OneDrive\Documents\Marquette\AIM 4470 AI Ethics\Spring 25\EthicsBot Assignments"
@@ -65,6 +65,8 @@ for value in student_csv[0]:
                                'grade_logic_':[],
                                'conversation_':[],
                                'generated_':[],
+                               'depth_':[],
+                               'seriousness_':[],
                                'final_grade':None,
                                'final_logic':None}
 
@@ -77,6 +79,8 @@ unmask = {'occupation_':'occupation_',
           'sc_': 'sentence_count_',
           'g_': 'grade_',
           'gl_': 'grade_logic_',
+          'dep_':'depth_',
+          'ser_':'seriousness_',
           'conversation_':'conversation_',
           'generated_':'generated_'}
 
@@ -115,15 +119,18 @@ for file_name in os.listdir(folder_path):
         if not file_name.endswith('.muef'):
             os.remove(file_path)
         else:
-            # Unpickle the file
-            with open(file_path, 'rb') as f:
-                data = pickle.load(f)
-            student = data.user_name_
-            # Add all content to review dictionary
-            data = data.__dict__
-            for k in list(data.keys()):
-                if unmask.get(k) in list(students[student].keys()):
-                    students[student][unmask.get(k)].append(data[k])
+            try:
+                # Unpickle the file
+                with open(file_path, 'rb') as f:
+                    data = pickle.load(f)
+                student = data.user_name_
+                # Add all content to review dictionary
+                data = data.__dict__
+                for k in list(data.keys()):
+                    if unmask.get(k) in list(students[student].keys()):
+                        students[student][unmask.get(k)].append(data[k])
+            except:
+                print(f"FAILED TO LOAD: {file_name}")
 
 # $ Final Evaluation
 max_grade = 0
@@ -175,12 +182,14 @@ s = []
 g = []
 l = []
 m = []
-# t = []
+t = []
 wc = []
 sc = []
 mins = []
 grades = []
 resps = []
+dep = []
+ser = []
 if max_grade < 1:
     free_points = 1 - max_grade
 else:
@@ -195,16 +204,19 @@ for student in list(students.keys()):
     g.append(grade)
     l.append(students[student]['final_logic'])
     m.append(json.dumps(students[student]))
-    # t.append(students[student]['generated_'])
+    t.append(students[student]['generated_'])
     wc.append(students[student]['word_count_'])
     sc.append(students[student]['sentence_count_'])
     mins.append(students[student]['minutes_spent_'])
     grades.append(students[student]['grade_'])
     resps.append(students[student]['user_responses_'])
+    dep.append(students[student]['depth_'])
+    ser.append(students[student]['seriousness_'])
 
-data = pd.DataFrame({'student':s, 'grade':g, 'ind_grades':grades, 'logic':l, 
-                    #  'time':t,
-                     'word count':wc, 'sentence count':sc, 'responses': resps,
+data = pd.DataFrame({'student':s, 'grade':g, 'logic':l, 
+                     'word count':wc, 'responses': resps, 'seriousness':ser, 'depth':dep, 
+                     'time':t, 'sentence count':sc, 
+                     'ind_grades':grades, 
                      'meta':m})
 
 # Export

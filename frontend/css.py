@@ -12,7 +12,7 @@ custom_box = """
 
 footer = """
         <span style="font-size:12px;"><br><br><br><br><br><br><br><br><br>Developed by: 
-        <a href="mailto:hunter.sandidge@marquette.edu" style="color:#e8c309;">ProfSandman</a><br>© 2025
+        <a href="mailto:hunter.sandidge@marquette.edu" style="color:#f6c308;">ProfSandman</a><br>© 2026
         </span>
         """
 

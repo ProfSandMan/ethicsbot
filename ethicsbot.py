@@ -7,7 +7,6 @@ import streamlit as st
 
 import frontend.css as css
 from backend.llms import OpenAILLM
-from backend.evaluation import Evaluator
 from backend.utils import AVATAR, prompt_modifier
 from backend.agents import (
     build_scenario_prompt, 
@@ -54,11 +53,11 @@ def package_and_download():
         'end_time': st.session_state['end_time'],
     }
     package = json.dumps(package)
-    st.download_button('Download D2L File', package, f'Ethics D2L {datetime.now().strftime('%d/%m/%Y, %H:%M:%S')}.json',
+    st.download_button('Download D2L File', package, f'{st.session_state["username"].replace("@marquette.edu", "").replace(".", "-")} {datetime.now().strftime('%d/%m/%Y, %H:%M:%S')}.json',
                         on_click=callback, type='primary')
-    st.download_button('Download Conversation', st.session_state['conversation'], 
-                       f'Ethics Conversation {datetime.now().strftime('%d/%m/%Y, %H:%M:%S')}.txt',
-                       on_click=callback)
+    # st.download_button('Download Conversation', st.session_state['messages'], 
+    #                    f'Ethics Conversation {datetime.now().strftime('%d/%m/%Y, %H:%M:%S')}.txt',
+    #                    on_click=callback)
 
 # ========================================================================================================================
 # Establish app and session_state variables
@@ -162,13 +161,11 @@ if viable == True or st.session_state['user_launched_convo'] == True:
         with st.spinner('EthicsBot is designing a scenario...'):
 
             # Build scenario
+            st.session_state['occupation'] = occupation
+            st.session_state['topic'] = topic
             scenario = build_scenario_prompt(occupation = occupation, topic = topic)
             scenario_agent = ScenarioAgent(llm = st.session_state['llm'])
             scenario_agent.system_prompt_ += prompt_modifier(st.session_state['username'])
-
-            print("MODIFIER: ", prompt_modifier(st.session_state['username']))
-
-
             scenario = scenario_agent.respond(scenario)
 
             st.session_state.messages.append({"role": "assistant", "content": scenario})
@@ -184,6 +181,7 @@ if viable == True or st.session_state['user_launched_convo'] == True:
         st.session_state.messages.append({"role": "user", "content": user_response})
 
         # Select agent
+        agent = None
         conductor_agent = ConductorAgent(llm = st.session_state['llm'])
         with st.spinner('EthicsBot is thinking...'):
             agent_id = conductor_agent.select_agent(messages = st.session_state.messages)
@@ -200,11 +198,8 @@ if viable == True or st.session_state['user_launched_convo'] == True:
         elif agent_id == 4:
             agent = InjectionAttackAgent(llm = st.session_state['llm'])
             agent_action = "skeptical of your response..."
-        agent.system_prompt_ += prompt_modifier(st.session_state['username'])
-
-
-        print("MODIFIER: ", prompt_modifier(st.session_state['username']))
-
+        if agent is not None:
+            agent.system_prompt_ += prompt_modifier(st.session_state['username'])
 
         for message in st.session_state.messages:
             if message["role"].lower().strip() != 'system':

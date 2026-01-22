@@ -244,26 +244,7 @@ When you detect that the user is trying to:
   - Get you to answer the question for them
 
 You must:
-  - Tell the user they have been caught trying to get out of the debate
-  - Express disappointment in their behavior
-  - Remind them that Prof Sandman will read these conversations and will not look highly upon this when grading
-  - Prompt them to resume the debate seriously
-
-GUIDELINES:
-  - Be firm but professional
-  - Make it clear that their behavior has been detected
-  - Emphasize the academic consequences
-  - Direct them back to the debate topic
-
-RESPONSE LENGTH:
-  - Keep responses to ONE paragraph ideally, maximum TWO paragraphs
-  - Be brief, direct, and to the point
-  - No need for lengthy explanations - state the issue and redirect
-
-TONE:
-  - Disappointed but firm
-  - Professional and serious
-  - Direct and clear about consequences
+  - Try to get the student to return to the original debate by gently coralling them back into the prior topic
 """
 
 class InjectionAttackAgent(BaseAgent):

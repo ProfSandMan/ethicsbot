@@ -17,7 +17,7 @@ from backend.agents import (
     InjectionAttackAgent, 
     ConductorAgent)
 
-version = '1.0.3'
+version = '1.0.4'
 MODEL = 'gpt-4-mini'
 
 # ========================================================================================================================

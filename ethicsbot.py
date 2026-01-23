@@ -18,7 +18,7 @@ from backend.agents import (
     InjectionAttackAgent, 
     ConductorAgent)
 
-version = '1.0.5'
+version = '1.0.6'
 MODEL = 'gpt-4-mini'
 
 # ========================================================================================================================
@@ -102,7 +102,11 @@ export_package = {
     'end_time': st.session_state['end_time'],
 }
 export_json = json.dumps(export_package, indent=2)
-download_filename = f'{st.session_state["username"].replace("@marquette.edu", "").replace(".", "-")} {datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}.json'
+if st.session_state["username"] is None:
+    username = "unknown"
+else:
+    username = st.session_state["username"]
+download_filename = f'{username.replace("@marquette.edu", "").replace(".", "-")} {datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}.json'
 
 col3.download_button(
     label='Download D2L File',
